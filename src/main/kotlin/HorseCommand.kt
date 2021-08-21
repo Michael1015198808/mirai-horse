@@ -23,7 +23,7 @@ object HorseCommand: CompositeCommand (
     val mutex = Mutex()
     val horse: String = "\uD83C\uDFC7"
     val item: String = "❓"
-    val item_pos: Int = 20 // 道具的位置
+    val item_pos: Int = 40 // 道具的位置
     @SubCommand("开始", "start")
     @Description("开始赛马")
     suspend fun CommandSenderOnMessage<GroupMessageEvent>.start() {
@@ -35,13 +35,13 @@ object HorseCommand: CompositeCommand (
             }
         }
         if (NotRunning) {
-            var dis = mutableListOf(30, 30, 30, 30, 30)
+            var dis = mutableListOf(50, 50, 50, 50, 50)
             var passed = mutableListOf(false, false, false, false, false)
             var speeds = mutableListOf(1, 1, 1, 1, 1)
             var winner: Int? = null
-            val fast = (0..4).map { Random.nextInt(-5, 6) }
-            val stable = (0..4).map { Random.nextInt(-5, 6) }
-            val lucky = (0..4).map { Random.nextInt(-5, 6) }
+            val fast = (0..4).map { Random.nextInt(-5, 6) + Random.nextInt(-5, 6) }
+            val stable = (0..4).map { Random.nextInt(-5, 6) + Random.nextInt(-5, 6) }
+            val lucky = (0..4).map { Random.nextInt(-5, 6) + Random.nextInt(-5, 6) }
             fun rendering(_dis: MutableList<Int>): String {
                 return (0..4).joinToString("\n") {
                     "${it+1}${
@@ -65,7 +65,7 @@ object HorseCommand: CompositeCommand (
                     "   ${it + 1}     ${"%2d".format(fast[it])}      ${"%2d".format(stable[it])}      ${"%2d".format(lucky[it])}"
                 }
             )
-            Thread.sleep(4000L)
+            Thread.sleep(5000L)
             var receipts = mutableListOf<MessageReceipt<Group>>()
             while (winner == null) {
                 var msg = ""
@@ -145,7 +145,7 @@ object HorseCommand: CompositeCommand (
                 后两种道具的概率为25-运气%
             """.trimIndent()
             "属性" -> """
-                每匹马有3个属性，在赛马开始前，每个属性在范围[-5, 5]内随机生成。
+                每匹马有3个属性，在赛马开始前，每个属性在范围[-10, 10]内随机生成。
                 每个属性的效果：
                     加速：数值越高，马加速的概率越大。
                     稳定：数值越高，马减速的概率越小。
