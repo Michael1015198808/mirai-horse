@@ -20,7 +20,7 @@ object PluginMain : KotlinPlugin(
     JvmPluginDescription(
         id = "mirai.horse",
         name = "mirai赛马插件",
-        version = "0.1.0"
+        version = "0.1.1"
     ) {
         author("鄢振宇https://github.com/michael1015198808")
         info("mirai的赛马小游戏插件")

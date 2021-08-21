@@ -20,6 +20,7 @@ object HorseCommand: CompositeCommand (
     val mutex = Mutex()
     val horse: String = "\uD83C\uDFC7"
     val item: String = "❓"
+    val item_pos: Int = 20 // 道具的位置
     @SubCommand("开始", "start")
     @Description("开始赛马")
     suspend fun CommandSenderOnMessage<GroupMessageEvent>.start() {
@@ -31,13 +32,19 @@ object HorseCommand: CompositeCommand (
             }
         }
         if (NotRunning) {
-            var dis = mutableListOf(40, 40, 40, 40, 40)
-            var passed = mutableListOf(0, 0, 0, 0, 0)
-            var speeds = mutableListOf(0, 0, 0, 0, 0)
+            var dis = mutableListOf(30, 30, 30, 30, 30)
+            var passed = mutableListOf(false, false, false, false, false)
+            var speeds = mutableListOf(1, 1, 1, 1, 1)
             var winner: Int? = null
             fun rendering(_dis: MutableList<Int>): String {
                 return (0..4).joinToString("\n") {
-                    "${it+1}${" ".repeat(max(0, _dis[it]))}$horse"
+                    "${it+1}${
+                        if(passed[it]) {
+                            " ".repeat(max(0, _dis[it]))
+                        } else {
+                            " ".repeat(item_pos - 4) + item + " ".repeat(_dis[it] - item_pos)
+                        }
+                    }$horse"
                 }
             }
             fromEvent.group.sendMessage("""
@@ -48,22 +55,46 @@ object HorseCommand: CompositeCommand (
             )
             Thread.sleep(3000L)
             while (winner == null) {
+                var msg = ""
                 Thread.sleep(1000L)
                 for (i in 0..4) {
-                    if(Random.nextBoolean()) {
-                        if (speeds[i] < 3) {
-                            ++speeds[i]
-                        }
-                    }
                     if(Random.nextBoolean()) {
                         if (speeds[i] > 1) {
                             --speeds[i]
                         }
                     }
+                    if(Random.nextBoolean()) {
+                        if (speeds[i] < 5) {
+                            ++speeds[i]
+                        }
+                    }
                     dis[i] -= speeds[i]
+                    if (dis[i] <= item_pos && passed[i] == false) {
+                        passed[i] = true
+                        msg += "${i + 1}号马吃到道具，"
+                        when(Random.nextInt(0, 4)) {
+                            0 -> {
+                                msg += "速度变为7"
+                                speeds[i] = 7
+                            }
+                            1 -> {
+                                msg += "前进5格"
+                                dis[i] -= 5
+                            }
+                            2 -> {
+                                msg += "后退5格"
+                                dis[i] += 5
+                            }
+                            3 -> {
+                                msg += "速度变为0"
+                                speeds[i] = 0
+                            }
+                        }
+                        msg += "\n"
+                    }
                 }
                 winner = dis.withIndex().filter { it.value <= 0 }.randomOrNull()?.index
-                fromEvent.group.sendMessage(rendering(dis))
+                fromEvent.group.sendMessage(msg + rendering(dis))
             }
             fromEvent.group.sendMessage("${winner+1} 号马率先冲过终点线，获得胜利！")
             running -= fromEvent.group.id
@@ -77,13 +108,11 @@ object HorseCommand: CompositeCommand (
         
         游戏共有五个赛道，每个赛道上都有一匹马（$horse）。
         每匹马以随机的速度（1～5个空格）向前进。
+        碰到道具（$item）后，随机获得以下几种效果中的一种：
+            1、飞驰：马的速度变为7
+            2、顺移：马前进5格
+            3、倒退：马后退5格
+            4、停滞：马的速度变为0
         """.trimIndent())
-        /*
-        碰到道具（$item）后，有以下几种效果：
-        1、飞驰：马的速度变为4
-        2、顺移：马前进4格
-        3、倒退：马后退4格
-        4、停滞：马的速度变为0
-        */
     }
 }
