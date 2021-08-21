@@ -109,7 +109,12 @@ object HorseCommand: CompositeCommand (
             if (nextEventOrNull<GroupMessageEvent>(3000L) {
                     it.message.contentToString() == "保留记录"
                 } == null) {
-                receipts.map { it.recall() }
+                receipts.map {
+                    it.recall()
+                    // Recall too fast will lead to `Failed(result=1008, errorMessage=security check not pass)`
+                    // It's recommended to use a hiatus at least 200ms.
+                    Thread.sleep(500L)
+                }
             }
         }
     }
