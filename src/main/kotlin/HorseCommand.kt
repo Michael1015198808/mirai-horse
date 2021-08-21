@@ -5,7 +5,9 @@ import kotlinx.coroutines.sync.withLock
 import net.mamoe.mirai.console.command.CommandSenderOnMessage
 import net.mamoe.mirai.console.command.CompositeCommand
 import net.mamoe.mirai.console.plugin.version
+import net.mamoe.mirai.contact.Group
 import net.mamoe.mirai.event.events.GroupMessageEvent
+import net.mamoe.mirai.message.MessageReceipt
 import java.lang.Math.max
 import kotlin.random.Random
 
@@ -50,10 +52,10 @@ object HorseCommand: CompositeCommand (
             fromEvent.group.sendMessage("""
                 赛马比赛即将开始！
                 请各位尽快下注
-                
-                """.trimIndent() + rendering(dis)
+                """.trimIndent()
             )
-            Thread.sleep(3000L)
+            Thread.sleep(4000L)
+            var receipts = mutableListOf<MessageReceipt<Group>>()
             while (winner == null) {
                 var msg = ""
                 Thread.sleep(1000L)
@@ -94,10 +96,12 @@ object HorseCommand: CompositeCommand (
                     }
                 }
                 winner = dis.withIndex().filter { it.value <= 0 }.randomOrNull()?.index
-                fromEvent.group.sendMessage(msg + rendering(dis))
+                receipts += fromEvent.group.sendMessage(msg + rendering(dis))
             }
             fromEvent.group.sendMessage("${winner+1} 号马率先冲过终点线，获得胜利！")
             running -= fromEvent.group.id
+            Thread.sleep(3000L)
+            receipts.map { it.recall() }
         }
     }
     @SubCommand("帮助", "help")
