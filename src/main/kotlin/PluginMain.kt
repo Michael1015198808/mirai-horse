@@ -1,5 +1,6 @@
 package michael.horse
 
+import net.mamoe.mirai.console.command.CommandManager.INSTANCE.register
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
 import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
 import net.mamoe.mirai.event.EventChannel
@@ -12,6 +13,7 @@ import net.mamoe.mirai.event.globalEventChannel
 import net.mamoe.mirai.message.data.Image
 import net.mamoe.mirai.message.data.Image.Key.queryUrl
 import net.mamoe.mirai.message.data.PlainText
+import net.mamoe.mirai.message.data.ids
 import net.mamoe.mirai.utils.info
 
 object PluginMain : KotlinPlugin(
@@ -27,9 +29,6 @@ object PluginMain : KotlinPlugin(
     override fun onEnable() {
         logger.info { "Plugin loaded" }
         //配置文件目录 "${dataFolder.absolutePath}/"
-        val eventChannel = GlobalEventChannel.parentScope(this)
-        eventChannel.subscribeAlways<GroupMessageEvent>{
-            }
-        }
+        HorseCommand.register()
     }
 }
