@@ -59,6 +59,7 @@ object HorseCommand: CompositeCommand (
                 
                 马的属性如下：
                 编号 加速 稳定 运气
+                
                 """.trimIndent() +
                 (0..4).joinToString("\n") {
                     "   ${it + 1}     ${"%2d".format(fast[it])}      ${"%2d".format(stable[it])}      ${"%2d".format(lucky[it])}"
